@@ -54,3 +54,10 @@ body {
   padding: 0;
   line-height: inherit;
 }
+
+#comment-div {
+  /* TODO: adjust css for comment div */
+  height: 100px;
+  width: 60%;
+  margin-bottom: 10px;
+}
