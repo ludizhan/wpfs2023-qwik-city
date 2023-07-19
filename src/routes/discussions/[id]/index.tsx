@@ -44,8 +44,8 @@ export default component$(() => {
         <div class="comments">
           <h2>Comments</h2>
           <ul>
-            {comments.value.map((comment) => (
-              <div dangerouslySetInnerHTML={comment.bodyHTML}></div>
+            {comments.value.map((comment, index) => (
+              <div dangerouslySetInnerHTML={comment.bodyHTML} key={index}></div>
             ))}
           </ul>
         </div>

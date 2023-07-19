@@ -33,6 +33,7 @@ export default component$(() => {
                 console.log("reacted with", r);
                 shown.value = false;
               }}
+              key={r}
             >
               {REACTION_EMOJI[r]}
             </button>
