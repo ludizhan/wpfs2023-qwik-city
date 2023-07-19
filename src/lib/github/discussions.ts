@@ -152,6 +152,7 @@ export async function getDiscussionDetails(number: number): Promise<DiscussionDe
 }
 
 export interface DiscussionComment {
+  id: string;
 	author: string;
 	createdAt: string;
 	bodyHTML: string;
@@ -164,15 +165,14 @@ export async function getDiscussionComments(number: number): Promise<DiscussionC
 			repository(owner: $repoOwner, name: $repoName) {
 				discussion(number: $number) {
 					comments(last: 10) {
-						edges {
-							node {
-								author {
-									login
-								}
-								createdAt
-								bodyHTML
-							}
-						}
+            nodes {
+              id
+              author {
+                login
+              }
+              createdAt
+              bodyHTML
+            }
 					}
 				}
 			}
@@ -181,10 +181,46 @@ export async function getDiscussionComments(number: number): Promise<DiscussionC
 		{ number }
 	);
 
-	const comments = (body as any).repository.discussion.comments.edges;
+	const comments = (body as any).repository.discussion.comments.nodes;
 	return comments.map((comment: any) => ({
-		author: comment.node.author.login,
-		createdAt: comment.node.createdAt,
-		bodyHTML: comment.node.bodyHTML
+    id: comment.id,
+		author: comment.author.login,
+		createdAt: comment.createdAt,
+		bodyHTML: comment.bodyHTML
 	}));
 }
+
+export interface DiscussionCommentReply {
+  author: string;
+  createdAt: string;
+  bodyHTML: string;
+}
+
+export async function getDiscussionCommentReplies(id: string): Promise<DiscussionCommentReply[]> {
+	const body = await queryGraphQl(
+		`
+    query getDiscussionCommentReplies($id: ID!) {
+      node(id: $id) {
+        ... on DiscussionComment {
+          replies(first: 10) {
+            nodes {
+              author {
+                login
+              }
+              createdAt
+              bodyHTML
+            }
+          }
+        }
+      }
+    }
+	`,
+		{ id }
+);
+const replies = (body as any).node.replies.nodes;
+return replies.map((reply: any) => ({
+  author: reply.author.login,
+  createdAt: reply.createdAt,
+  bodyHTML: reply.bodyHTML
+}));
+  }
