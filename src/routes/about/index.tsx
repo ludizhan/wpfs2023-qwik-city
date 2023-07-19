@@ -1,16 +1,18 @@
 import { component$ } from "@builder.io/qwik";
-// import { Link, routeLoader$ } from "@builder.io/qwik-city";
-// import { getDiscussionList } from "~/lib/github/discussions";
+import { routeLoader$ } from "@builder.io/qwik-city";
+import { getRepositoryDescription } from "~/lib/github/description";
 
-// TODO(csmick): Get the GitHub repo description.
-// export const useDiscussions = routeLoader$(async () => getDiscussionList());
+export const useRepositoryDescription = routeLoader$(async () =>
+  getRepositoryDescription()
+);
 
 export default component$(() => {
-//   const discussions = useDiscussions();
+  const description = useRepositoryDescription();
 
   return (
     <main>
       <h1>About</h1>
+      <div>{description}</div>
     </main>
   );
 });

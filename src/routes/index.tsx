@@ -5,8 +5,12 @@ export default component$(() => {
   return (
     <div class="container">
       <ul>
-        <li><Link href="/about">About</Link></li>
-        <li><Link href="/discussions">Discussions list</Link></li>
+        <li>
+          <Link href="/about">About</Link>
+        </li>
+        <li>
+          <Link href="/discussions">Discussions list</Link>
+        </li>
       </ul>
     </div>
   );
