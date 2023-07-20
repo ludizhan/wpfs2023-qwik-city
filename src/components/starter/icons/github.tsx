@@ -1,5 +1,5 @@
 export const GitHubLogo = ({
-  width = 100,
+  width = 35,
   height = 35,
 }: {
   width?: number;
