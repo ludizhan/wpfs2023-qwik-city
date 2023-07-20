@@ -1,7 +1,7 @@
 import { component$, useStylesScoped$ } from "@builder.io/qwik";
 import { REACTION_EMOJI } from "~/lib/github/discussions";
 
-import { useDiscussion } from "~/routes/discussions/[id]";
+import { useDiscussion, useToggleReaction } from "~/routes/discussions/[id]";
 
 export default component$(() => {
   useStylesScoped$(`
@@ -16,11 +16,12 @@ export default component$(() => {
   `);
 
   const discussion = useDiscussion();
+  const toggleReaction = useToggleReaction();
 
   return (
     <div class="reactions">
       {discussion.value.reactionGroups.map((group) => (
-        <button class={{viewerHasReacted: group.viewerHasReacted}} onClick$={() => { console.log(`Reacted with ${REACTION_EMOJI[group.content]}`) }} key={group.content}>
+        <button class={{ viewerHasReacted: group.viewerHasReacted }} onClick$={() => { toggleReaction.submit({ ...group, discussionId: discussion.value.id }) }} key={group.content}>
           {REACTION_EMOJI[group.content]}
           {group.totalCount}
         </button>

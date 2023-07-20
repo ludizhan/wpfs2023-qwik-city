@@ -1,11 +1,14 @@
 import { component$ } from "@builder.io/qwik";
-import { routeLoader$ } from "@builder.io/qwik-city";
+import { routeLoader$, routeAction$ } from "@builder.io/qwik-city";
 import AddReaction from "~/components/discussions/AddReaction";
 import ReplyForm from "~/components/discussions/ReplyForm";
 import { type ReplyFormType } from "~/components/discussions/ReplyForm";
 import {
+  REACTION_EMOJI,
+  addDiscussionReaction,
   getDiscussionComments,
   getDiscussionDetails,
+  reactionRequestSchema,
 } from "~/lib/github/discussions";
 import { type InitialValues } from "@modular-forms/qwik";
 
@@ -19,29 +22,39 @@ export const useFormLoader = routeLoader$<InitialValues<ReplyFormType>>(() => ({
   comment: "",
 }));
 
-export default component$(() => {
-  const discussion = useDiscussion();
-  const comments = useComments();
-
-  return (
-    <>
-      <section>
-        <h1>{discussion.value.title}</h1>
-        <p>
-          by {discussion.value.author} on {discussion.value.createdAt}
-        </p>
-        <div dangerouslySetInnerHTML={discussion.value.bodyHTML} />
-        <AddReaction />
-        <div class="comments">
-          <h2>Comments</h2>
-          <ul>
-            {comments.value.map((comment, index) => (
-              <div dangerouslySetInnerHTML={comment.bodyHTML} key={index}></div>
-            ))}
-          </ul>
-        </div>
-        <ReplyForm />
-      </section>
-    </>
-  );
+export const useToggleReaction = routeAction$(async (data) => {
+  const reactionRequest = reactionRequestSchema.parse(data);
+  if (reactionRequest.viewerHasReacted) {
+    console.log(`Undo reaction for ${REACTION_EMOJI[reactionRequest.content]}`);
+  } else {
+    console.log(`Reacted with ${REACTION_EMOJI[reactionRequest.content]}`);
+    addDiscussionReaction(reactionRequest);
+  }
 });
+
+export default component$(() => {
+    const discussion = useDiscussion();
+    const comments = useComments();
+
+    return (
+      <>
+        <section>
+          <h1>{discussion.value.title}</h1>
+          <p>
+            by {discussion.value.author} on {discussion.value.createdAt}
+          </p>
+          <div dangerouslySetInnerHTML={discussion.value.bodyHTML} />
+          <AddReaction />
+          <div class="comments">
+            <h2>Comments</h2>
+            <ul>
+              {comments.value.map((comment, index) => (
+                <div dangerouslySetInnerHTML={comment.bodyHTML} key={index}></div>
+              ))}
+            </ul>
+          </div>
+          <ReplyForm />
+        </section>
+      </>
+    );
+  });
