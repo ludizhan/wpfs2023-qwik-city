@@ -32,6 +32,7 @@ export const REACTION_EMOJI: Record<(typeof REACTIONS)[number], string> = {
 export interface ReactionGroup {
 	content: (typeof REACTIONS)[number];
 	totalCount: number;
+	viewerHasReacted: boolean;
 }
 
 export interface DiscussionDetails extends Discussion {

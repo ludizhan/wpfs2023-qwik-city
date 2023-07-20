@@ -9,15 +9,10 @@ export default component$(() => {
             display: inline-block;
             position: relative;
         }
-        
-        dialog {
-            left: calc(100% + 0.3em);
-            top: 0;
-            white-space: nowrap;
-            border: 1px solid var(--color-bg-1);
-            border-radius: 0.5em;
-            padding: 0.3em;
-        }    
+
+        .reactions > button.viewerHasReacted {
+          background-color: purple;
+        } 
   `);
 
   const discussion = useDiscussion();
@@ -25,7 +20,7 @@ export default component$(() => {
   return (
     <div class="reactions">
       {discussion.value.reactionGroups.map((group) => (
-        <button onClick$={() => { console.log(`Reacted with ${REACTION_EMOJI[group.content]}`) }} key={group.content}>
+        <button class={{viewerHasReacted: group.viewerHasReacted}} onClick$={() => { console.log(`Reacted with ${REACTION_EMOJI[group.content]}`) }} key={group.content}>
           {REACTION_EMOJI[group.content]}
           {group.totalCount}
         </button>
