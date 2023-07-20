@@ -1,14 +1,6 @@
 import { App } from 'octokit';
 import GITHUB_KEY from '../../../.env.private-key.pem?raw';
-
-function requireEnv(key: string): string {
-	const value = process.env[key];
-	if (value == null) {
-		throw new Error(`Missing ${key} environnement variable.`);
-	}
-
-	return value;
-}
+import { requireEnv } from '../env';
 
 interface QueryVariables {
 	[name: string]: unknown;
