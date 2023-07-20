@@ -177,3 +177,22 @@ export async function addDiscussionReaction({content, discussionId}: ReactionReq
 		{ subjectId: discussionId, content }
 	);
 }
+
+export async function removeDiscussionReaction({content, discussionId}: ReactionRequest): Promise<ReactionGroup> {
+	return await queryGraphQl<ReactionGroup>(
+		`
+		mutation removeDiscussionReaction($subjectId: ID!, $content: ReactionContent!) {
+			removeReaction(input:{subjectId:$subjectId,content:$content}) {
+				reactionGroups {
+					content
+					reactors {
+					  totalCount
+					}
+					viewerHasReacted
+				  }
+			  }
+		}
+	`,
+		{ subjectId: discussionId, content }
+	);
+}
