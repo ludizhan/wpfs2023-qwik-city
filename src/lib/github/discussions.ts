@@ -86,6 +86,7 @@ export async function getDiscussionDetails(number: number): Promise<DiscussionDe
 					  reactors {
 						totalCount
 					  }
+					  viewerHasReacted
 					}
 					bodyHTML
 				}
@@ -103,7 +104,8 @@ export async function getDiscussionDetails(number: number): Promise<DiscussionDe
 		createdAt: discussion.createdAt,
 		reactionGroups: discussion.reactionGroups.map((group: any) => ({
 			content: group.content,
-			totalCount: group.reactors.totalCount
+			totalCount: group.reactors.totalCount,
+			viewerHasReacted: group.viewerHasReacted
 		})),
 		bodyHTML: discussion.bodyHTML
 	};
