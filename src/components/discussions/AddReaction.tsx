@@ -21,7 +21,16 @@ export default component$(() => {
   return (
     <div class="reactions">
       {discussion.value.reactionGroups.map((group) => (
-        <button class={{ viewerHasReacted: group.viewerHasReacted }} onClick$={() => { toggleReaction.submit({ ...group, discussionId: discussion.value.id }) }} key={group.content}>
+        <button
+          class={{ viewerHasReacted: group.viewerHasReacted }}
+          onClick$={() => {
+            toggleReaction.submit({
+              ...group,
+              discussionId: discussion.value.id,
+            });
+          }}
+          key={group.content}
+        >
           {REACTION_EMOJI[group.content]}
           {group.totalCount}
         </button>
