@@ -8,9 +8,7 @@ import {
   getDiscussionComments,
   getDiscussionDetails,
 } from "~/lib/github/discussions";
-import {
-  type InitialValues,
-} from '@modular-forms/qwik';
+import { type InitialValues } from "@modular-forms/qwik";
 
 export const useDiscussion = routeLoader$(async (requestEvent) =>
   getDiscussionDetails(Number(requestEvent.params.id))
@@ -19,7 +17,7 @@ export const useComments = routeLoader$(async (requestEvent) =>
   getDiscussionComments(Number(requestEvent.params.id))
 );
 export const useFormLoader = routeLoader$<InitialValues<ReplyFormType>>(() => ({
-  comment: '',
+  comment: "",
 }));
 
 export default component$(() => {
