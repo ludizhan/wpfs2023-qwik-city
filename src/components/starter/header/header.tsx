@@ -12,7 +12,10 @@ export default component$(() => {
             <QwikLogo height={50} width={143} />
           </a>
         </div>
-        <Login />
+        <Login
+          // TODO: Add state for user information; remove hard-coded `loggedIn`
+          loggedIn={true}
+        />
       </div>
     </header>
   );
