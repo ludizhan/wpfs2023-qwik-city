@@ -1,17 +1,15 @@
 import { component$ } from "@builder.io/qwik";
 import { GitHubLogo } from "../starter/icons/github";
-import { getAuthUrl } from "~/lib/github/discussions";
+import { getAuthUrl } from "~/lib/github/oauth";
 
 const AuthUrl = getAuthUrl();
-
-interface UserLoginButtonProps {
-  loggedIn: boolean;
-}
 
 /**
  * Button to redirect a user to Github OAuth2 or logout
  */
-export const Login = component$(({ loggedIn }: UserLoginButtonProps) => {
+export const Login = component$(() => {
+  const loggedIn = false; // TODO: Implement signal to check if authorized
+
   return loggedIn ?
     <a href={AuthUrl}>
       <button
@@ -29,7 +27,7 @@ export const Login = component$(({ loggedIn }: UserLoginButtonProps) => {
       </button>
     </a>
     :
-    <a>
-      <button onClick$={() => { console.error('Sign Out Button: Implement me.') }}>Sign Out</button>
+    <a href={'/logout'}>
+      <button>Sign Out</button>
     </a>
 });
