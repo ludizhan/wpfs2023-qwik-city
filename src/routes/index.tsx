@@ -4,7 +4,14 @@ import { type DocumentHead, Link } from "@builder.io/qwik-city";
 export default component$(() => {
   return (
     <div class="container">
-      <Link href="/discussions">Discussions list</Link>
+      <ul>
+        <li>
+          <Link href="/about">About</Link>
+        </li>
+        <li>
+          <Link href="/discussions">Discussions list</Link>
+        </li>
+      </ul>
     </div>
   );
 });

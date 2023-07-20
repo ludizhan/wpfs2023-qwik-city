@@ -1,5 +1,6 @@
 import { App } from 'octokit';
 import GITHUB_KEY from '../../../.env.private-key.pem?raw';
+import {queryGraphQl} from './graphql';
 
 export interface Discussion {
 	number: number;
