@@ -1,5 +1,5 @@
 import { RequestHandler } from '@builder.io/qwik-city';
-import { registerUserAuthPackage, tradeCodeForAuthPackage } from '~/lib/github/oauth';
+import { registerGitHubToken, tradeCodeForToken } from '~/lib/github/oauth';
 
 export const onGet: RequestHandler = async function ({ query, cookie, redirect }) {
   const code = query.get('code');
@@ -8,8 +8,8 @@ export const onGet: RequestHandler = async function ({ query, cookie, redirect }
     throw redirect(307, '/');
   }
 
-  const authPackage = await tradeCodeForAuthPackage(code);
-  registerUserAuthPackage(code, authPackage);
+  const authPackage = await tradeCodeForToken(code);
+  registerGitHubToken(code, authPackage);
   cookie.set('oauth', code, { path: '/' });
 
   throw redirect(307, '/');
