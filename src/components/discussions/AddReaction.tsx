@@ -1,9 +1,11 @@
-import { component$, useSignal, useStylesScoped$ } from "@builder.io/qwik";
-import { REACTIONS, REACTION_EMOJI } from "~/lib/github/discussions";
+import { component$, useStylesScoped$ } from "@builder.io/qwik";
+import { REACTION_EMOJI } from "~/lib/github/discussions";
+
+import { useDiscussion } from "~/routes/discussions/[id]";
 
 export default component$(() => {
   useStylesScoped$(`
-        .add-reaction {
+        .reactions {
             display: inline-block;
             position: relative;
         }
@@ -18,28 +20,16 @@ export default component$(() => {
         }    
   `);
 
-  const shown = useSignal(false);
+  const discussion = useDiscussion();
 
   return (
-    <>
-      <div class="add-reaction">
-        <button onClick$={() => (shown.value = !shown.value)}>
-          Add reaction
+    <div class="reactions">
+      {discussion.value.reactionGroups.map((group) => (
+        <button onClick$={() => { console.log(`Reacted with ${REACTION_EMOJI[group.content]}`) }} key={group.content}>
+          {REACTION_EMOJI[group.content]}
+          {group.totalCount}
         </button>
-        <dialog open={shown.value}>
-          {REACTIONS.map((r) => (
-            <button
-              onClick$={() => {
-                console.log("reacted with", r);
-                shown.value = false;
-              }}
-              key={r}
-            >
-              {REACTION_EMOJI[r]}
-            </button>
-          ))}
-        </dialog>
-      </div>
-    </>
+      ))}
+    </div>
   );
 });
