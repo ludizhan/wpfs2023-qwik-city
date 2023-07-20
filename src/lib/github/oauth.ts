@@ -1,8 +1,15 @@
 import { App } from "octokit";
 import GITHUB_KEY from '../../../.env.private-key.pem?raw';
 import { requireEnv } from "../env";
-import { GitHubAccessTokenResponse } from "~/routes/oauth/callback";
 
+export interface GitHubAccessTokenResponse {
+  access_token: `ghu_${string}`;
+  expires_in: number;
+  refresh_token: `ghr_${string}`;
+  refresh_token_expires_in: number;
+  scope: string;
+  token_type: 'bearer';
+}
 type AuthCode = string;
 const authorizedUsers = new Map<AuthCode, GitHubAccessTokenResponse>();
 
