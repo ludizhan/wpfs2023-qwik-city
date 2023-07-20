@@ -19,9 +19,23 @@ export function getAuthUrl(): string {
   return res.url;
 }
 
+export async function tradeCodeForAuthPackage(code: AuthCode) {
+  const tokenAuthResponse = await fetch('https://github.com/login/oauth/access_token?' + new URLSearchParams({
+    client_id: requireEnv('GITHUB_CLIENT_ID'),
+    client_secret: requireEnv('GITHUB_CLIENT_SECRET'),
+    code,
+  }));
+  const responseUrl = await tokenAuthResponse.text();
+  const parsedTokenAuthResponse = Object.fromEntries(
+    new URLSearchParams(responseUrl.slice(responseUrl.indexOf('?') + 1))
+  ) as unknown as GitHubAccessTokenResponse;
+  console.log('Got auth response package:', parsedTokenAuthResponse);
+  return parsedTokenAuthResponse;
+}
+
 export function registerUserAuthPackage(code: AuthCode, githubAuthResponse: GitHubAccessTokenResponse): void {
   authorizedUsers.set(code, githubAuthResponse);
-  console.log({authorizedUsers});
+  console.log(`Registered new auth package with code ${code}`, { authorizedUsers });
 }
 
 export function deleteUserAuthPackage(code: AuthCode): boolean {
