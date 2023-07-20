@@ -4,7 +4,6 @@ import AddReaction from "~/components/discussions/AddReaction";
 import ReplyForm from "~/components/discussions/ReplyForm";
 import { type ReplyFormType } from "~/components/discussions/ReplyForm";
 import {
-  REACTION_EMOJI,
   getDiscussionComments,
   getDiscussionDetails,
 } from "~/lib/github/discussions";
@@ -32,15 +31,7 @@ export default component$(() => {
           by {discussion.value.author} on {discussion.value.createdAt}
         </p>
         <div dangerouslySetInnerHTML={discussion.value.bodyHTML} />
-        <div class="reactions">
-          {discussion.value.reactionGroups.map((group) => (
-            <button key={group.content} disabled>
-              {REACTION_EMOJI[group.content]}
-              {group.totalCount}
-            </button>
-          ))}
-          <AddReaction />
-        </div>
+        <AddReaction />
         <div class="comments">
           <h2>Comments</h2>
           <ul>
