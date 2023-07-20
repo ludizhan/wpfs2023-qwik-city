@@ -34,7 +34,6 @@ async function queryUserGraphQl<T>(token: GitHubTokenPacket, query: string, para
     query,
     parameters,
   );
-
 }
 
 export async function fetchUserInfoFromAuth(token: GitHubTokenPacket): Promise<GitHubUser> {
