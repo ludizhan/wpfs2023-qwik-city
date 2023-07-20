@@ -36,7 +36,7 @@ export default component$(() => {
         <div dangerouslySetInnerHTML={discussion.value.bodyHTML} />
         <div class="reactions">
           {discussion.value.reactionGroups.map((group) => (
-            <button disabled>
+            <button key={group.content} disabled>
               {REACTION_EMOJI[group.content]}
               {group.totalCount}
             </button>
