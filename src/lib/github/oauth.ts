@@ -1,19 +1,24 @@
 import { App } from "octokit";
-import GITHUB_KEY from '../../../.env.private-key.pem?raw';
 import { requireEnv } from "../env";
-
-export interface GitHubAccessTokenResponse {
-  access_token: `ghu_${string}`;
-  expires_in: number;
-  refresh_token: `ghr_${string}`;
-  refresh_token_expires_in: number;
-  scope: string;
-  token_type: 'bearer';
+import GITHUB_KEY from '../../../.env.private-key.pem?raw';
+  
+type GitHubAccessToken = `ghu_${string}`;
+type GitHubRefreshToken = `ghr_${string}`;
+type GitHubAuthorizationHeader = `${typeof GITHUB_ACCESS_TOKEN_TYPE} ${GitHubAccessToken}`;
+export interface GitHubTokenPacket {
+  readonly access_token: GitHubAccessToken;
+  readonly expires_in: number;
+  readonly refresh_token: GitHubRefreshToken;
+  readonly refresh_token_expires_in: number;
+  readonly scope: string;
+  readonly token_type: typeof GITHUB_ACCESS_TOKEN_TYPE;
 }
-type AuthCode = string;
-const authorizedUsers = new Map<AuthCode, GitHubAccessTokenResponse>();
 
-export function getAuthUrl(): string {
+const GITHUB_ACCESS_TOKEN_TYPE = 'bearer';
+
+const oauthCodeToToken = new Map<string, GitHubTokenPacket>();
+
+export function getGitHubAuthUrl(): string {
   const GITHUB_APP_ID = requireEnv('GITHUB_APP_ID');
   const GITHUB_CLIENT_ID = requireEnv('GITHUB_CLIENT_ID');
   const GITHUB_CLIENT_SECRET = requireEnv('GITHUB_CLIENT_SECRET');
@@ -24,39 +29,59 @@ export function getAuthUrl(): string {
   });
   const res = app.oauth.getWebFlowAuthorizationUrl({});
   return res.url;
+
 }
 
-export async function tradeCodeForAuthPackage(code: AuthCode) {
-  const tokenAuthResponse = await fetch('https://github.com/login/oauth/access_token?' + new URLSearchParams({
+export async function tradeCodeForToken(oauthCode: string) {
+  const tokenResponse = await fetch('https://github.com/login/oauth/access_token?' + new URLSearchParams({
     client_id: requireEnv('GITHUB_CLIENT_ID'),
     client_secret: requireEnv('GITHUB_CLIENT_SECRET'),
-    code,
+    code: oauthCode,
   }));
-  const responseUrl = await tokenAuthResponse.text();
-  const parsedTokenAuthResponse = Object.fromEntries(
+  const responseUrl = await tokenResponse.text();
+  const parsedTokenResponse = Object.fromEntries(
     new URLSearchParams(responseUrl.slice(responseUrl.indexOf('?') + 1))
-  ) as unknown as GitHubAccessTokenResponse;
-  console.log('Got auth response package:', parsedTokenAuthResponse);
-  return parsedTokenAuthResponse;
+  ) as unknown as GitHubTokenPacket;
+  console.log('Got auth response package:', parsedTokenResponse);
+  return parsedTokenResponse;
 }
 
-export function registerUserAuthPackage(code: AuthCode, githubAuthResponse: GitHubAccessTokenResponse): void {
-  authorizedUsers.set(code, githubAuthResponse);
-  console.log(`Registered new auth package with code ${code}`, { authorizedUsers });
+export async function registerGitHubToken(oauthCode: string, githubAuthResponse: GitHubTokenPacket): Promise<void> {
+  oauthCodeToToken.set(oauthCode, githubAuthResponse);
+  console.log(`Registered code ${oauthCode}:`, oauthCodeToToken);
 }
 
-export function deleteUserAuthPackage(code: AuthCode): boolean {
-  return authorizedUsers.delete(code);
-}
-
-export function getAccessToken(code: AuthCode): GitHubAccessTokenResponse['access_token'] {
-  const authResponse = authorizedUsers.get(code);
-  if (!authResponse) {
-    throw new Error(`No GitHub access authentication found for code ${code}.`);
+export function getGitHubToken(oauthCode: string): GitHubTokenPacket {
+  const userAuthPackage = oauthCodeToToken.get(oauthCode);
+  if (!userAuthPackage) {
+    throw new Error(`No GitHub access authentication found for code ${oauthCode}.`);
   }
-  return authResponse.access_token;
+  return userAuthPackage;
 }
 
-export function isAuthorized(code: AuthCode): boolean {
-  return authorizedUsers.has(code);
+export function deleteGitHubToken(oauthCode: string): boolean {
+  return oauthCodeToToken.delete(oauthCode);
+}
+
+/** Fetches a registered GitHub token's `access_token` */
+export function getAccessToken(oauthCode: string): GitHubAccessToken {
+  return getGitHubToken(oauthCode).access_token;
+}
+
+export function getAuthorizationHeader(codeOrToken: string | GitHubAccessToken): GitHubAuthorizationHeader {
+  let accessToken: GitHubAccessToken;
+  if (isGitHubAccessToken(codeOrToken)) {
+    accessToken = codeOrToken;
+  } else {
+    accessToken = getGitHubToken(codeOrToken).access_token;
+  }
+  return `${GITHUB_ACCESS_TOKEN_TYPE} ${accessToken}`;
+}
+
+export function isAuthorized(oauthCode: string): boolean {
+  return oauthCodeToToken.has(oauthCode);
+}
+
+function isGitHubAccessToken(token: string): token is GitHubAccessToken {
+  return token.startsWith('ghu_');
 }
