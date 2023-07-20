@@ -9,7 +9,7 @@ interface UserLoginButtonProps {
 }
 
 /**
- * Button to redirect a user to Github OAuth2
+ * Button to redirect a user to Github OAuth2 or logout
  */
 export const Login = component$(({ loggedIn }: UserLoginButtonProps) => {
   return loggedIn ?
