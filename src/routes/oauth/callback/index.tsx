@@ -5,7 +5,6 @@ export const onGet: RequestHandler = async function ({ query, cookie, redirect }
   const code = query.get('code');
   console.log({ code });
   if (!code) {
-    alert('No GitHub authorization code received. Unable to authorize.');
     throw redirect(307, '/');
   }
 
