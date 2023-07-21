@@ -4,8 +4,12 @@ import AddReaction from "~/components/discussions/AddReaction";
 import ReplyForm from "~/components/discussions/ReplyForm";
 import { type ReplyFormType } from "~/components/discussions/ReplyForm";
 import {
+  REACTION_EMOJI,
+  addDiscussionReaction,
   getDiscussionComments,
   getDiscussionDetails,
+  reactionRequestSchema,
+  removeDiscussionReaction,
 } from "~/lib/github/discussions";
 import { type InitialValues } from "@modular-forms/qwik";
 import { GitHubTokenPacket, getGitHubToken } from "~/lib/github/oauth";
@@ -20,8 +24,26 @@ export const useDiscussion = routeLoader$(async (requestEvent) => {
     catch (e: unknown) { console.error(e); }
   }
   return getDiscussionDetails(Number(requestEvent.params.id), auth);
-  // return getDiscussionDetails(Number(requestEvent.params.id));
 });
+
+export const useToggleReaction = routeAction$(async (data, event) => {
+  const oauthToken = event.cookie.get('oauth');
+  if (!oauthToken) {
+    return;
+  }
+  try {
+    const reactionRequest = reactionRequestSchema.parse(data);
+    const githubToken = getGitHubToken(oauthToken.value);
+    if (reactionRequest.viewerHasReacted) {
+      console.log(`Undo reaction for ${REACTION_EMOJI[reactionRequest.content]}`);
+      removeDiscussionReaction(githubToken, reactionRequest);
+    } else {
+      console.log(`Reacted with ${REACTION_EMOJI[reactionRequest.content]}`);
+      addDiscussionReaction(githubToken, reactionRequest);
+    }
+  } catch (e: unknown) { console.error(e); }
+});
+
 export const useComments = routeLoader$(async (requestEvent) =>
   getDiscussionComments(Number(requestEvent.params.id))
 );
