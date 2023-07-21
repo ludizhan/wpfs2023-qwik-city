@@ -1,25 +1,7 @@
 import { component$, useSignal, useTask$ } from "@builder.io/qwik";
 import { GitHubLogo } from "../starter/icons/github";
-import { getGitHubAuthUrl, getGitHubToken } from "~/lib/github/oauth";
-import { server$ } from "@builder.io/qwik-city";
-import { type GitHubUser, fetchUserInfoFromAuth } from "~/lib/github/user";
-
-const fetchUser = server$(async function () {
-  console.log("FETCHUSER CALLED");
-  const oauth = this.cookie.get("oauth");
-  if (!oauth) {
-    return;
-  }
-
-  let token;
-  try {
-    token = getGitHubToken(oauth.value);
-  } catch (e: unknown) {
-    return;
-  }
-
-  return fetchUserInfoFromAuth(token);
-});
+import { getGitHubAuthUrl } from "~/lib/github/oauth";
+import { type GitHubUser, fetchUser } from "~/lib/github/user";
 
 /**
  * Button to redirect a user to Github OAuth2 or logout

@@ -23,6 +23,7 @@ export default component$(() => {
       {discussion.value.reactionGroups.map((group) => (
         <button
           class={{ viewerHasReacted: group.viewerHasReacted }}
+          style={{ margin: '4px' }}
           onClick$={() => {
             toggleReaction.submit({
               ...group,
