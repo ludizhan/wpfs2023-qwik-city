@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import { routeLoader$ } from "@builder.io/qwik-city";
+import { routeAction$, routeLoader$ } from "@builder.io/qwik-city";
 import AddReaction from "~/components/discussions/AddReaction";
 import ReplyForm from "~/components/discussions/ReplyForm";
 import { type ReplyFormType } from "~/components/discussions/ReplyForm";
