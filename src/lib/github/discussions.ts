@@ -1,5 +1,7 @@
 import { z } from "@builder.io/qwik-city";
-import {queryGraphQl} from './graphql';
+import { queryGraphQl } from './graphql';
+import { GitHubTokenPacket } from "./oauth";
+import { queryUserGraphQl } from "./user";
 
 export interface Discussion {
 	id: string;
@@ -32,11 +34,11 @@ export const REACTION_EMOJI: Record<(typeof REACTIONS)[number], string> = {
 };
 
 export const reactionRequestSchema = z.object({
-    content: z.enum(REACTIONS),
+	content: z.enum(REACTIONS),
 	discussionId: z.string(),
 	totalCount: z.number().min(0),
 	viewerHasReacted: z.boolean(),
-  });
+});
 
 export declare type ReactionRequest = z.infer<typeof reactionRequestSchema>;
 
@@ -159,8 +161,9 @@ export async function getDiscussionComments(number: number): Promise<DiscussionC
 	}));
 }
 
-export async function addDiscussionReaction({content, discussionId}: ReactionRequest): Promise<ReactionGroup> {
-	return await queryGraphQl<ReactionGroup>(
+export async function addDiscussionReaction(userToken: GitHubTokenPacket, { content, discussionId }: ReactionRequest): Promise<ReactionGroup> {
+	return await queryUserGraphQl<ReactionGroup>(
+		userToken,
 		`
 		mutation addDiscussionReaction($subjectId: ID!, $content: ReactionContent!) {
 			addReaction(input:{subjectId:$subjectId,content:$content}) {
@@ -178,8 +181,9 @@ export async function addDiscussionReaction({content, discussionId}: ReactionReq
 	);
 }
 
-export async function removeDiscussionReaction({content, discussionId}: ReactionRequest): Promise<ReactionGroup> {
-	return await queryGraphQl<ReactionGroup>(
+export async function removeDiscussionReaction(userToken: GitHubTokenPacket, { content, discussionId }: ReactionRequest): Promise<ReactionGroup> {
+	return await queryUserGraphQl<ReactionGroup>(
+		userToken,
 		`
 		mutation removeDiscussionReaction($subjectId: ID!, $content: ReactionContent!) {
 			removeReaction(input:{subjectId:$subjectId,content:$content}) {

@@ -15,7 +15,7 @@ interface QueryVariables {
   [name: string]: unknown;
 }
 
-async function queryUserGraphQl<T>(token: GitHubTokenPacket, query: string, parameters: QueryVariables): Promise<T> {
+export async function queryUserGraphQl<T>(token: GitHubTokenPacket, query: string, parameters: QueryVariables): Promise<T> {
   const GITHUB_APP_ID = requireEnv('GITHUB_APP_ID');
 	const GITHUB_CLIENT_ID = requireEnv('GITHUB_CLIENT_ID');
 	const GITHUB_CLIENT_SECRET = requireEnv('GITHUB_CLIENT_SECRET');
