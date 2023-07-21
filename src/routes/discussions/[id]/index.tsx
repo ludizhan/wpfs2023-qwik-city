@@ -4,12 +4,8 @@ import AddReaction from "~/components/discussions/AddReaction";
 import ReplyForm from "~/components/discussions/ReplyForm";
 import { type ReplyFormType } from "~/components/discussions/ReplyForm";
 import {
-  REACTION_EMOJI,
-  addDiscussionReaction,
   getDiscussionComments,
   getDiscussionDetails,
-  reactionRequestSchema,
-  removeDiscussionReaction,
 } from "~/lib/github/discussions";
 import { type InitialValues } from "@modular-forms/qwik";
 
@@ -22,17 +18,6 @@ export const useComments = routeLoader$(async (requestEvent) =>
 export const useFormLoader = routeLoader$<InitialValues<ReplyFormType>>(() => ({
   comment: "",
 }));
-
-export const useToggleReaction = routeAction$(async (data) => {
-  const reactionRequest = reactionRequestSchema.parse(data);
-  if (reactionRequest.viewerHasReacted) {
-    console.log(`Undo reaction for ${REACTION_EMOJI[reactionRequest.content]}`);
-    removeDiscussionReaction(reactionRequest);
-  } else {
-    console.log(`Reacted with ${REACTION_EMOJI[reactionRequest.content]}`);
-    addDiscussionReaction(reactionRequest);
-  }
-});
 
 export default component$(() => {
   const discussion = useDiscussion();
