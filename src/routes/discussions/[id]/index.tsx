@@ -8,10 +8,20 @@ import {
   getDiscussionDetails,
 } from "~/lib/github/discussions";
 import { type InitialValues } from "@modular-forms/qwik";
+import { GitHubTokenPacket, getGitHubToken } from "~/lib/github/oauth";
 
-export const useDiscussion = routeLoader$(async (requestEvent) =>
-  getDiscussionDetails(Number(requestEvent.params.id))
-);
+export const useDiscussion = routeLoader$(async (requestEvent) => {
+  const cookie = requestEvent.cookie.get('oauth');
+  let auth: GitHubTokenPacket | undefined;
+  if (cookie) {
+    try {
+      auth = getGitHubToken(cookie.value);
+    }
+    catch (e: unknown) { console.error(e); }
+  }
+  return getDiscussionDetails(Number(requestEvent.params.id), auth);
+  // return getDiscussionDetails(Number(requestEvent.params.id));
+});
 export const useComments = routeLoader$(async (requestEvent) =>
   getDiscussionComments(Number(requestEvent.params.id))
 );

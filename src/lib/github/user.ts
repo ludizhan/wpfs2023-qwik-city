@@ -17,22 +17,27 @@ interface QueryVariables {
 
 export async function queryUserGraphQl<T>(token: GitHubTokenPacket, query: string, parameters: QueryVariables): Promise<T> {
   const GITHUB_APP_ID = requireEnv('GITHUB_APP_ID');
-	const GITHUB_CLIENT_ID = requireEnv('GITHUB_CLIENT_ID');
-	const GITHUB_CLIENT_SECRET = requireEnv('GITHUB_CLIENT_SECRET');
-
-	const app = new App({
-		appId: GITHUB_APP_ID,
-		privateKey: GITHUB_KEY,
-		oauth: { clientId: GITHUB_CLIENT_ID, clientSecret: GITHUB_CLIENT_SECRET }
-	});
-
+  const GITHUB_CLIENT_ID = requireEnv('GITHUB_CLIENT_ID');
+  const GITHUB_CLIENT_SECRET = requireEnv('GITHUB_CLIENT_SECRET');
+  const GITHUB_REPO_OWNER = requireEnv('GITHUB_REPO_OWNER');
+  const GITHUB_REPO_NAME = requireEnv('GITHUB_REPO_NAME');
+  
+  const app = new App({
+    appId: GITHUB_APP_ID,
+    privateKey: GITHUB_KEY,
+    oauth: { clientId: GITHUB_CLIENT_ID, clientSecret: GITHUB_CLIENT_SECRET }
+  });
+  
   const octokit = await app.oauth.getUserOctokit({
     token: token.access_token,
     refreshToken: token.refresh_token,
   });
   return await octokit.graphql(
     query,
-    parameters,
+    {
+      ...parameters, repoOwner: GITHUB_REPO_OWNER,
+      repoName: GITHUB_REPO_NAME
+    },
   );
 }
 

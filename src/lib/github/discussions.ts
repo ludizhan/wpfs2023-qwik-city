@@ -79,8 +79,8 @@ export async function getDiscussionList(): Promise<Discussion[]> {
 	return discussions;
 }
 
-export async function getDiscussionDetails(number: number): Promise<DiscussionDetails> {
-	const body = await queryGraphQl(
+export async function getDiscussionDetails(number: number, auth?: GitHubTokenPacket): Promise<DiscussionDetails> {
+	const query =
 		`
 		query discussionDetails($repoOwner: String!, $repoName: String!, $number: Int!) {
 			repository(owner: $repoOwner, name: $repoName) {
@@ -89,23 +89,34 @@ export async function getDiscussionDetails(number: number): Promise<DiscussionDe
 					number
 					title
 					author {
-					  login
+						login
 					}
 					createdAt
 					reactionGroups {
-					  content
-					  reactors {
+						content
+						reactors {
 						totalCount
-					  }
-					  viewerHasReacted
+						}
+						viewerHasReacted
 					}
 					bodyHTML
 				}
 			}
 		}
-	`,
-		{ number }
-	);
+	`;
+	let body;
+	if (auth) {
+		body = await queryUserGraphQl(
+			auth,
+			query,
+			{ number },
+		)
+	} else {
+		body = await queryGraphQl(
+			query,
+			{ number }
+		);
+	}
 
 	const discussion = (body as any).repository.discussion;
 	return {
