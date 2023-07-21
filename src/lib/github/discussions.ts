@@ -1,6 +1,8 @@
+import { z } from "@builder.io/qwik-city";
 import {queryGraphQl} from './graphql';
 
 export interface Discussion {
+	id: string;
 	number: number;
 	title: string;
 	author: string;
@@ -29,10 +31,16 @@ export const REACTION_EMOJI: Record<(typeof REACTIONS)[number], string> = {
 	EYES: '👀'
 };
 
-export interface ReactionGroup {
-	content: (typeof REACTIONS)[number];
-	totalCount: number;
-}
+export const reactionRequestSchema = z.object({
+    content: z.enum(REACTIONS),
+	discussionId: z.string(),
+	totalCount: z.number().min(0),
+	viewerHasReacted: z.boolean(),
+  });
+
+export declare type ReactionRequest = z.infer<typeof reactionRequestSchema>;
+
+export declare type ReactionGroup = Omit<ReactionRequest, 'discussionId'>;
 
 export interface DiscussionDetails extends Discussion {
 	reactionGroups: ReactionGroup[];
@@ -75,6 +83,7 @@ export async function getDiscussionDetails(number: number): Promise<DiscussionDe
 		query discussionDetails($repoOwner: String!, $repoName: String!, $number: Int!) {
 			repository(owner: $repoOwner, name: $repoName) {
 				discussion(number: $number) {
+					id
 					number
 					title
 					author {
@@ -98,6 +107,7 @@ export async function getDiscussionDetails(number: number): Promise<DiscussionDe
 
 	const discussion = (body as any).repository.discussion;
 	return {
+		id: discussion.id,
 		number: discussion.number,
 		title: discussion.title,
 		author: discussion.author.login,
@@ -147,4 +157,42 @@ export async function getDiscussionComments(number: number): Promise<DiscussionC
 		createdAt: comment.node.createdAt,
 		bodyHTML: comment.node.bodyHTML
 	}));
+}
+
+export async function addDiscussionReaction({content, discussionId}: ReactionRequest): Promise<ReactionGroup> {
+	return await queryGraphQl<ReactionGroup>(
+		`
+		mutation addDiscussionReaction($subjectId: ID!, $content: ReactionContent!) {
+			addReaction(input:{subjectId:$subjectId,content:$content}) {
+				reactionGroups {
+					content
+					reactors {
+					  totalCount
+					}
+					viewerHasReacted
+				  }
+			  }
+		}
+	`,
+		{ subjectId: discussionId, content }
+	);
+}
+
+export async function removeDiscussionReaction({content, discussionId}: ReactionRequest): Promise<ReactionGroup> {
+	return await queryGraphQl<ReactionGroup>(
+		`
+		mutation removeDiscussionReaction($subjectId: ID!, $content: ReactionContent!) {
+			removeReaction(input:{subjectId:$subjectId,content:$content}) {
+				reactionGroups {
+					content
+					reactors {
+					  totalCount
+					}
+					viewerHasReacted
+				  }
+			  }
+		}
+	`,
+		{ subjectId: discussionId, content }
+	);
 }

@@ -1,12 +1,15 @@
 import { component$ } from "@builder.io/qwik";
-import { routeLoader$ } from "@builder.io/qwik-city";
+import { routeLoader$, routeAction$ } from "@builder.io/qwik-city";
 import AddReaction from "~/components/discussions/AddReaction";
 import ReplyForm from "~/components/discussions/ReplyForm";
 import { type ReplyFormType } from "~/components/discussions/ReplyForm";
 import {
   REACTION_EMOJI,
+  addDiscussionReaction,
   getDiscussionComments,
   getDiscussionDetails,
+  reactionRequestSchema,
+  removeDiscussionReaction,
 } from "~/lib/github/discussions";
 import { type InitialValues } from "@modular-forms/qwik";
 
@@ -20,6 +23,17 @@ export const useFormLoader = routeLoader$<InitialValues<ReplyFormType>>(() => ({
   comment: "",
 }));
 
+export const useToggleReaction = routeAction$(async (data) => {
+  const reactionRequest = reactionRequestSchema.parse(data);
+  if (reactionRequest.viewerHasReacted) {
+    console.log(`Undo reaction for ${REACTION_EMOJI[reactionRequest.content]}`);
+    removeDiscussionReaction(reactionRequest);
+  } else {
+    console.log(`Reacted with ${REACTION_EMOJI[reactionRequest.content]}`);
+    addDiscussionReaction(reactionRequest);
+  }
+});
+
 export default component$(() => {
   const discussion = useDiscussion();
   const comments = useComments();
@@ -32,20 +46,12 @@ export default component$(() => {
           by {discussion.value.author} on {discussion.value.createdAt}
         </p>
         <div dangerouslySetInnerHTML={discussion.value.bodyHTML} />
-        <div class="reactions">
-          {discussion.value.reactionGroups.map((group) => (
-            <button key={group.content} disabled>
-              {REACTION_EMOJI[group.content]}
-              {group.totalCount}
-            </button>
-          ))}
-          <AddReaction />
-        </div>
+        <AddReaction />
         <div class="comments">
           <h2>Comments</h2>
           <ul>
-            {comments.value.map((comment) => (
-              <div dangerouslySetInnerHTML={comment.bodyHTML}></div>
+            {comments.value.map((comment, index) => (
+              <div dangerouslySetInnerHTML={comment.bodyHTML} key={index}></div>
             ))}
           </ul>
         </div>

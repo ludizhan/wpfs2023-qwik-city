@@ -1,44 +1,40 @@
-import { component$, useSignal, useStylesScoped$ } from "@builder.io/qwik";
-import { REACTIONS, REACTION_EMOJI } from "~/lib/github/discussions";
+import { component$, useStylesScoped$ } from "@builder.io/qwik";
+import { REACTION_EMOJI } from "~/lib/github/discussions";
+
+import { useDiscussion, useToggleReaction } from "~/routes/discussions/[id]";
 
 export default component$(() => {
   useStylesScoped$(`
-        .add-reaction {
+        .reactions {
             display: inline-block;
             position: relative;
         }
-        
-        dialog {
-            left: calc(100% + 0.3em);
-            top: 0;
-            white-space: nowrap;
-            border: 1px solid var(--color-bg-1);
-            border-radius: 0.5em;
-            padding: 0.3em;
-        }    
+
+        .reactions > button.viewerHasReacted {
+          background-color: purple;
+        } 
   `);
 
-  const shown = useSignal(false);
+  const discussion = useDiscussion();
+  const toggleReaction = useToggleReaction();
 
   return (
-    <>
-      <div class="add-reaction">
-        <button onClick$={() => (shown.value = !shown.value)}>
-          Add reaction
+    <div class="reactions">
+      {discussion.value.reactionGroups.map((group) => (
+        <button
+          class={{ viewerHasReacted: group.viewerHasReacted }}
+          onClick$={() => {
+            toggleReaction.submit({
+              ...group,
+              discussionId: discussion.value.id,
+            });
+          }}
+          key={group.content}
+        >
+          {REACTION_EMOJI[group.content]}
+          {group.totalCount}
         </button>
-        <dialog open={shown.value}>
-          {REACTIONS.map((r) => (
-            <button
-              onClick$={() => {
-                console.log("reacted with", r);
-                shown.value = false;
-              }}
-            >
-              {REACTION_EMOJI[r]}
-            </button>
-          ))}
-        </dialog>
-      </div>
-    </>
+      ))}
+    </div>
   );
 });
