@@ -1,7 +1,8 @@
-import { GitHubTokenPacket } from "./oauth";
+import { GitHubTokenPacket, getGitHubToken } from "./oauth";
 import GITHUB_KEY from '../../../.env.private-key.pem?raw';
 import { App } from "octokit";
 import { requireEnv } from "../env";
+import { Cookie } from "@builder.io/qwik-city";
 
 export interface GitHubUser {
   id: number;
@@ -52,4 +53,16 @@ export async function fetchUserInfoFromAuth(token: GitHubTokenPacket): Promise<G
   `, {});
   console.log({user});
   return (user as any).viewer as GitHubUser;
+}
+
+export function getAuthTokenFromCookie(cookie: Cookie) {
+  const oauth = cookie.get('oauth');
+  if (!oauth) {
+    return;
+  }
+  try {
+    return getGitHubToken(oauth.value);
+  } catch (e: unknown) {
+    console.error('User not authorized.');
+  }
 }
