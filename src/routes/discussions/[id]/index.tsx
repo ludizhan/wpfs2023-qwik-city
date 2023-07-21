@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import { routeLoader$, routeAction$ } from "@builder.io/qwik-city";
+import { routeLoader$ } from "@builder.io/qwik-city";
 import AddReaction from "~/components/discussions/AddReaction";
 import ReplyForm from "~/components/discussions/ReplyForm";
 import { type ReplyFormType } from "~/components/discussions/ReplyForm";
@@ -8,16 +8,17 @@ import {
   getDiscussionDetails,
 } from "~/lib/github/discussions";
 import { type InitialValues } from "@modular-forms/qwik";
-import { GitHubTokenPacket, getGitHubToken } from "~/lib/github/oauth";
+import { type GitHubTokenPacket, getGitHubToken } from "~/lib/github/oauth";
 
 export const useDiscussion = routeLoader$(async (requestEvent) => {
-  const cookie = requestEvent.cookie.get('oauth');
+  const cookie = requestEvent.cookie.get("oauth");
   let auth: GitHubTokenPacket | undefined;
   if (cookie) {
     try {
       auth = getGitHubToken(cookie.value);
+    } catch (e: unknown) {
+      console.error(e);
     }
-    catch (e: unknown) { console.error(e); }
   }
   return getDiscussionDetails(Number(requestEvent.params.id), auth);
   // return getDiscussionDetails(Number(requestEvent.params.id));
