@@ -58,7 +58,7 @@ export default component$(() => {
 
   return (
     <>
-      <section>
+      <section class="container">
         <h1>{discussion.value.title}</h1>
         <p>
           by {discussion.value.author} on {discussion.value.createdAt}

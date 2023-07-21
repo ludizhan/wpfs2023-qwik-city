@@ -10,9 +10,10 @@ export default component$(() => {
   const description = useRepositoryDescription();
 
   return (
-    <main>
+    <main class="container">
       <h1>About</h1>
-      <div>{description}</div>
+      <p style={{fontSize: '2em'}}>{description}</p>
+      <p>Statically generated {':)'}</p>
     </main>
   );
 });
